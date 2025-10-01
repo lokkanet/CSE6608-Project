@@ -1,9 +1,10 @@
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, Form
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 import sqlalchemy as sa
 from app import db
 from app.models import User
+from wtforms import TextAreaField
 
 
 class LoginForm(FlaskForm):
@@ -32,3 +33,17 @@ class RegistrationForm(FlaskForm):
             User.email == email.data))
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+
+class CreatePostForm(FlaskForm):
+    # body = StringField('Body', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    body = TextAreaField('Your Comment', validators = [DataRequired()], render_kw={"rows": 5, "cols": 40})
+
+
+class AddWalletForm(FlaskForm):
+    address = StringField('Address', validators=[DataRequired()])
+    encrypted_private_key = StringField('Private Key', validators=[DataRequired()])
+    chain = StringField('Chain', validators=[DataRequired()])
+
+    submit = SubmitField('Submit')

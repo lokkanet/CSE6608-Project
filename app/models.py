@@ -18,6 +18,8 @@ class User(UserMixin, db.Model):
 
     posts: so.WriteOnlyMapped['Post'] = so.relationship(
         back_populates='author')
+    wallet: so.Mapped[Optional['Wallet']] = so.relationship(back_populates='user')
+
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -46,3 +48,15 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
+class Wallet(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), unique=True)
+
+    address: so.Mapped[str] = so.mapped_column(sa.String(42), index=True, unique=True)
+    encrypted_private_key: so.Mapped[str] = so.mapped_column(sa.Text)
+    chain: so.Mapped[Optional[str]] = so.mapped_column(sa.String(20))  # 'ethereum', 'polygon', etc.
+
+    user: so.Mapped[User] = so.relationship(back_populates='wallet')
+

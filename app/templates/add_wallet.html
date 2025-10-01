@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add Wallet</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.address.label }}<br>
+        {{ form.address(size=32) }}<br>
+        {% for error in form.address.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.encrypted_private_key.label }}<br>
+        {{ form.encrypted_private_key(size=32) }}<br>
+        {% for error in form.encrypted_private_key.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.chain.label }}<br>
+        {{ form.chain(size=32) }}<br>
+        {% for error in form.chain.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
