@@ -12,6 +12,7 @@ your wallet: {{wallet}}
 {% else %}
 <a href="{{ url_for('add_wallet') }}">Add Wallet</a>
 {% endif %}
+<a href="{{ url_for('upload_file') }}">File Upload</a>
 
 {% for post in posts %}
 <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>

@@ -15,69 +15,27 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm
+from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm, FileUploadForm
 from app.models import User, Post, Wallet
 from urllib.parse import urlsplit
+from app.utils.ipfs_op import ipfs_upload
 
 
-@app.route('/api/upload', methods=['POST'])
+@app.route('/file/upload', methods=["GET",'POST'])
 @login_required
 def upload_file():
-    token = request.headers.get('Authorization')
-    if not token or token not in sessions_db:
-        return jsonify({'error': 'Unauthorized'}), 401
 
-    username = sessions_db[token]['username']
-    user = users_db[username]
 
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
+    form = FileUploadForm()
+    if form.validate_on_submit():
+        file = form.file.data
+        print(file)
 
-    file = request.files['file']
-    encrypt = request.form.get('encrypt', 'true').lower() == 'true'
 
-    try:
-        # Read file content
-        file_content = file.read()
 
-        # Encrypt if requested
-        if encrypt:
-            file_content = encrypt_data(
-                file_content.decode('latin-1'),
-                user['public_key']
-            ).encode()
-
-        # Upload to IPFS
-        if ipfs_client:
-            res = ipfs_client.add_bytes(file_content)
-            ipfs_hash = res
-        else:
-            # Simulate IPFS hash for demo
-            ipfs_hash = hashlib.sha256(file_content).hexdigest()
-
-        # Register on blockchain
-        tx_hash = contract.functions.uploadFile(
-            file.filename,
-            file.content_type or 'application/octet-stream',
-            len(file_content),
-            ipfs_hash,
-            encrypt
-        ).transact({'from': user['eth_address']})
-
-        receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-
-        # Extract file ID from event logs
-        file_id = contract.events.FileUploaded().process_receipt(receipt)[0]['args']['fileId']
-
-        return jsonify({
-            'message': 'File uploaded successfully',
-            'file_id': file_id,
-            'ipfs_hash': ipfs_hash,
-            'tx_hash': receipt.transactionHash.hex()
-        }), 201
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        flash('Congratulations')
+        return redirect(url_for('index'))
+    return render_template('file_upload.html', title='File Upload', form=form)
 
 
 @app.route('/api/download/<int:file_id>', methods=['GET'])

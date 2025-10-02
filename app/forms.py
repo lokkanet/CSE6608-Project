@@ -1,10 +1,13 @@
 from flask_wtf import FlaskForm, Form
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FileField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, Length
 import sqlalchemy as sa
 from app import db
 from app.models import User
 from wtforms import TextAreaField
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired
+from werkzeug.utils import secure_filename
 
 
 class LoginForm(FlaskForm):
@@ -38,7 +41,7 @@ class RegistrationForm(FlaskForm):
 class CreatePostForm(FlaskForm):
     # body = StringField('Body', validators=[DataRequired()])
     submit = SubmitField('Submit')
-    body = TextAreaField('Your Comment', validators = [DataRequired()], render_kw={"rows": 5, "cols": 40})
+    body = TextAreaField('Your Comment', validators=[DataRequired()], render_kw={"rows": 5, "cols": 40})
 
 
 class AddWalletForm(FlaskForm):
@@ -47,3 +50,10 @@ class AddWalletForm(FlaskForm):
     chain = StringField('Chain', validators=[DataRequired()])
 
     submit = SubmitField('Submit')
+
+
+class FileUploadForm(FlaskForm):
+    file = FileField('File', validators=[FileRequired()])
+    submit = SubmitField('Submit')
+
+
