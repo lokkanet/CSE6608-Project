@@ -1,6 +1,13 @@
-
+import os
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import login_user, logout_user, current_user, login_required
+import sqlalchemy as sa
+from app import app, db
+from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm
+from app.models import User, Post, Wallet
+from urllib.parse import urlsplit
 from flask import Flask, request, jsonify, session
-from flask_cors import CORS
+# from flask_cors import CORS
 from web3 import Web3
 import ipfshttpclient
 import json
@@ -12,6 +19,7 @@ from cryptography.hazmat.backends import default_backend
 import hashlib
 import secrets
 
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
@@ -20,6 +28,7 @@ def health_check():
         'blockchain_connected': w3.is_connected(),
         'ipfs_connected': ipfs_client is not None
     }), 200
+
 
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
@@ -32,4 +41,3 @@ def get_stats():
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-

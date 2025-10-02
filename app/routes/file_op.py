@@ -1,6 +1,5 @@
-
 from flask import Flask, request, jsonify, session
-from flask_cors import CORS
+# from flask_cors import CORS
 from web3 import Web3
 import ipfshttpclient
 import json
@@ -11,10 +10,19 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
 import hashlib
 import secrets
+import os
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import login_user, logout_user, current_user, login_required
+import sqlalchemy as sa
+from app import app, db
+from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm
+from app.models import User, Post, Wallet
+from urllib.parse import urlsplit
+
 
 @app.route('/api/upload', methods=['POST'])
+@login_required
 def upload_file():
-    """Upload file to IPFS and register on blockchain"""
     token = request.headers.get('Authorization')
     if not token or token not in sessions_db:
         return jsonify({'error': 'Unauthorized'}), 401
@@ -71,6 +79,7 @@ def upload_file():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/download/<int:file_id>', methods=['GET'])
 def download_file(file_id):
     """Download file from IPFS"""
@@ -114,6 +123,7 @@ def download_file(file_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/files', methods=['GET'])
 def get_user_files():
     """Get all files owned by user"""
@@ -150,6 +160,7 @@ def get_user_files():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/share', methods=['POST'])
 def share_file():
     """Grant access to another user"""
@@ -182,6 +193,7 @@ def share_file():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/revoke', methods=['POST'])
 def revoke_access():
     """Revoke access from a user"""
@@ -211,4 +223,3 @@ def revoke_access():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-

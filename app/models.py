@@ -60,3 +60,9 @@ class Wallet(db.Model):
 
     user: so.Mapped[User] = so.relationship(back_populates='wallet')
 
+
+class Files(db.Model):
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    sender: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+    receiver: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+    file_key : so.Mapped[str] = so.mapped_column(sa.String(500))
