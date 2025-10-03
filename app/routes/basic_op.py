@@ -6,7 +6,7 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm
 from app.models import User, Post, Wallet
 from urllib.parse import urlsplit
-
+from app.utils.encryptions import generate_key_pair
 
 @app.route('/')
 @app.route('/index')
@@ -15,12 +15,15 @@ def index():
     user = current_user
     posts = db.session.scalars(user.posts.select()).all()
     # wallet = db.session.scalars(user.wallet.select()).all()
+
+    files = user.files
+    print(files)
     wallet = None
     if user.wallet:
         wallet = user.wallet
 
     return render_template('index.html', title='Home',
-                           posts=posts, wallet=wallet
+                           posts=posts, wallet=wallet, files=files
                            )
 
 
@@ -87,18 +90,19 @@ def create_post():
 @app.route('/add-wallet', methods=['GET', 'POST'])
 @login_required
 def add_wallet():
-    form = AddWalletForm()
-    if form.validate_on_submit():
-        post = Wallet(
-            user_id=current_user.id,
-            address=form.address.data,
-            encrypted_private_key=form.encrypted_private_key.data,
-            chain=form.chain.data
+    # form = AddWalletForm()
+    # if form.validate_on_submit():
+    private_key, public_key = generate_key_pair()
+    post = Wallet(
+        user_id=current_user.id,
+        address=public_key,
+        encrypted_private_key=private_key,
+        chain="Ethereum"
 
-        )
+    )
 
-        db.session.add(post)
-        db.session.commit()
-        flash('Congratulations')
-        return redirect(url_for('index'))
-    return render_template('add_wallet.html', title='Add Wallet', form=form)
+    db.session.add(post)
+    db.session.commit()
+    flash('Congratulations')
+    return redirect(url_for('index'))
+    # return render_template('add_wallet.html', title='Add Wallet', form=form)

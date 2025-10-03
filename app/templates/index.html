@@ -16,7 +16,29 @@ your wallet: {{wallet}}
 
 {% for post in posts %}
 <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
-
 {% endfor %}
+
+
+<table class="table table-striped-columns">
+  <thead>
+    <tr>
+      <th scope="col">FileName</th>
+      <th scope="col">Access List</th>
+      <th scope="col">Share</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% if files %}
+  {% for file in files %}
+    <tr>
+      <td>{{file.file_name}}</td>
+      <td>{%for usr in file.users%}{{usr.username}}{%endfor%}</td>
+      <td>Share</td>
+    </tr>
+    {% endfor %}
+  {% endif %}
+  </tbody>
+</table>
+
 
 {% endblock %}

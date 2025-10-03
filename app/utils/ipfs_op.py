@@ -11,14 +11,23 @@ import os
 from .encryptions import encrypt_data
 
 
-def ipfs_upload(file, public_key):
+
+def ipfs_upload(user, file, public_key):
     encrypted_file = encrypt_data(file, public_key)
+    print("enc", encrypted_file)
 
+    file_path = f"app/userfiles/text{user}.txt"
+    with open(file_path, "w") as f:
+        f.write(f"{encrypted_file}")
+
+    file_hash = ""
     with ipfshttpclient.connect() as client:
-        hash = client.add('test.txt')['Hash']
-        print(client.stat(hash))
+        file_hash = client.add(file_path)['Hash']
+        print(client, file_hash)
 
+    os.remove(file_path)
 
+    return file_hash
 
     # # Register on blockchain
     # tx_hash = contract.functions.uploadFile(

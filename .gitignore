@@ -46,3 +46,5 @@ demo*
 report*
 *.db
 deployment.json
+
+app/userfiles/*

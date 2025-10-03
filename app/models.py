@@ -7,6 +7,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from app import login
 
+user_file = db.Table('user_file',
+                     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                     db.Column('file_id', db.Integer, db.ForeignKey('file.id'))
+                     )
+
 
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
@@ -20,6 +25,7 @@ class User(UserMixin, db.Model):
         back_populates='author')
     wallet: so.Mapped[Optional['Wallet']] = so.relationship(back_populates='user')
 
+    files = db.relationship('File', secondary=user_file, backref='users')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -61,8 +67,13 @@ class Wallet(db.Model):
     user: so.Mapped[User] = so.relationship(back_populates='wallet')
 
 
-class Files(db.Model):
+class File(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    sender: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
-    receiver: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
-    file_key : so.Mapped[str] = so.mapped_column(sa.String(500))
+    file_key: so.Mapped[str] = so.mapped_column(sa.String(500))
+    file_name: so.Mapped[str] = so.mapped_column(sa.String(100), nullable=True)
+
+    def __repr__(self):
+        return f'<file "{self.id}">'
+
+
+

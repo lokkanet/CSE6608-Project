@@ -16,26 +16,39 @@ from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, CreatePostForm, AddWalletForm, FileUploadForm
-from app.models import User, Post, Wallet
+from app.models import User, Post, Wallet, File
 from urllib.parse import urlsplit
 from app.utils.ipfs_op import ipfs_upload
+from io import BytesIO
 
 
-@app.route('/file/upload', methods=["GET",'POST'])
+@app.route('/file/upload', methods=["GET", 'POST'])
 @login_required
 def upload_file():
-
-
     form = FileUploadForm()
     if form.validate_on_submit():
         file = form.file.data
-        print(file)
+        print(file.read(), form.file.data.filename)
+        byte_file = file.read()
 
+        file_hash = ipfs_upload(current_user.id, byte_file, current_user.wallet.address)
 
+        stored_file_key = File(
+            file_key=file_hash,
+            file_name=f"{form.file.data.filename}"
+        )
+        db.session.add(stored_file_key)
+        db.session.commit()
+        print(current_user.files)
+        current_user.files.append(stored_file_key)
+        db.session.add(current_user)
+        db.session.commit()
 
         flash('Congratulations')
         return redirect(url_for('index'))
     return render_template('file_upload.html', title='File Upload', form=form)
+
+
 
 
 @app.route('/api/download/<int:file_id>', methods=['GET'])

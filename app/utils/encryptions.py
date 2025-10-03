@@ -1,10 +1,16 @@
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+
+
 
 def generate_key_pair():
     """Generate RSA key pair"""
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
-        backend=default_backend()
+        # backend=default_backend()
     )
     public_key = private_key.public_key()
 
@@ -20,16 +26,18 @@ def generate_key_pair():
     )
 
     return private_pem.decode(), public_pem.decode()
+# pri, pub = generate_key_pair()
+# print(pri,pub, type(pri), type(pub) )
 
 def encrypt_data(data, public_key_pem):
     """Encrypt data with public key"""
     public_key = serialization.load_pem_public_key(
         public_key_pem.encode(),
-        backend=default_backend()
+        # backend=default_backend()
     )
 
     encrypted = public_key.encrypt(
-        data.encode(),
+        data,
         padding.OAEP(
             mgf=padding.MGF1(algorithm=hashes.SHA256()),
             algorithm=hashes.SHA256(),
